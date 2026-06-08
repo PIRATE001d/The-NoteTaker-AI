@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, Text, DateTime
+from sqlalchemy import Column, String, Text, DateTime, Float, JSON
 from sqlalchemy.dialects.postgresql import UUID
 from pgvector.sqlalchemy import Vector
 from app.core.database import Base
@@ -42,6 +42,7 @@ class Decision(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     session_id = Column(UUID(as_uuid=True))
     decision = Column(Text)
+    status = Column(String) # 'agreed' or 'proposed'
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class ActionItem(Base):
@@ -51,8 +52,27 @@ class ActionItem(Base):
     session_id = Column(UUID(as_uuid=True))
     owner = Column(String)
     task = Column(Text)
-    due_date = Column(DateTime)
+    due_date = Column(String, nullable=True) # Changed from DateTime to String to handle "Tuesday" etc.
+    deadline_confidence = Column(Float, nullable=True)
+    confidence = Column(Float, nullable=True)
+    evidence = Column(JSON, nullable=True) # List of strings
     status = Column(String)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class Risk(Base):
+    __tablename__ = "risks"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    session_id = Column(UUID(as_uuid=True))
+    risk = Column(Text)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class KeyTakeaway(Base):
+    __tablename__ = "key_takeaways"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    session_id = Column(UUID(as_uuid=True))
+    takeaway = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class Question(Base):

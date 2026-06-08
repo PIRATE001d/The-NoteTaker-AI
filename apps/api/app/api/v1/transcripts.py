@@ -4,7 +4,7 @@ import os
 import uuid
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.models.all_models import Session as DBSession, Transcript, Note, ActionItem, Decision
+from app.models.all_models import Session as DBSession, Transcript, Note, ActionItem, Decision, Risk, KeyTakeaway, Question
 from app.services.gemini import GeminiService
 
 router = APIRouter()
@@ -51,11 +51,15 @@ async def upload_audio(file: UploadFile = File(...), db: Session = Depends(get_d
         db_note = Note(session_id=session_id, summary=notes_data["summary"])
         db.add(db_note)
 
-    for task in notes_data.get("tasks", []):
+    for task in notes_data.get("action_items", []):
         db_task = ActionItem(
             session_id=session_id, 
             task=task.get("task"), 
             owner=task.get("owner"),
+            due_date=task.get("due_date"),
+            deadline_confidence=task.get("deadline_confidence"),
+            confidence=task.get("confidence"),
+            evidence=task.get("evidence", []),
             status="pending"
         )
         db.add(db_task)
@@ -63,9 +67,19 @@ async def upload_audio(file: UploadFile = File(...), db: Session = Depends(get_d
     for dec in notes_data.get("decisions", []):
         db_dec = Decision(
             session_id=session_id,
-            decision=dec
+            decision=dec.get("decision", str(dec)),
+            status=dec.get("status", "proposed")
         )
         db.add(db_dec)
+        
+    for risk in notes_data.get("risks", []):
+        db.add(Risk(session_id=session_id, risk=risk))
+
+    for takeaway in notes_data.get("key_takeaways", []):
+        db.add(KeyTakeaway(session_id=session_id, takeaway=takeaway))
+        
+    for q in notes_data.get("open_questions", []):
+        db.add(Question(session_id=session_id, question=q))
         
     db.commit()
 
