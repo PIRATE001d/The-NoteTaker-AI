@@ -1,109 +1,181 @@
-# The Noter AI
+<p align="center">
+  <a href="https://github.com/yourusername/the-noter-ai">
+    <img src="https://img.shields.io/badge/status-active-success" alt="Status" />
+  </a>
+  <a href="https://nextjs.org">
+    <img src="https://img.shields.io/badge/Next.js-15-black" alt="Next.js" />
+  </a>
+  <a href="https://fastapi.tiangolo.com">
+    <img src="https://img.shields.io/badge/FastAPI-latest-009688" alt="FastAPI" />
+  </a>
+  <a href="https://www.python.org">
+    <img src="https://img.shields.io/badge/Python-3.10+-3776AB" alt="Python" />
+  </a>
+</p>
 
-The Noter AI is an intelligent audio transcription and meeting assistant. It takes your raw audio, accurately transcribes it using local AI, and then extracts an executive summary, key decisions, and actionable tasks using advanced LLM processing.
+<br />
 
-## 🚀 How It Works
+<p align="center">
+  <img width="80" src="https://raw.githubusercontent.com/ggerganov/whisper.cpp/master/logo.png" alt="Logo" />
+</p>
 
-1. **Upload Audio**: You upload a meeting recording via the Next.js frontend.
-2. **Local Transcription (Whisper.cpp)**: The FastAPI backend receives the file and runs it through a highly optimized, locally-hosted **Whisper.cpp** model to generate a highly accurate text transcript.
-3. **AI Extraction (Gemini)**: The transcript is automatically sent to **Google Gemini** (via `google-genai`), which acts as an AI meeting assistant to generate:
-   - A concise executive summary.
-   - A bulleted list of key decisions.
-   - Actionable tasks (identifying the task and the owner).
-4. **Data Storage**: The parsed intelligence and raw transcript are stored securely in a local **PostgreSQL** database (running via Docker with `pgvector` enabled for future embedding search capabilities).
-5. **Insights Dashboard**: The user is instantly presented with a beautiful dashboard breaking down the meeting.
+<h1 align="center">Noter AI</h1>
+
+<p align="center">
+  <strong>Intelligent meeting assistant that transforms audio into actionable insights.</strong><br />
+  <sub>Local transcription with Whisper.cpp + AI-powered analysis with Google Gemini</sub>
+</p>
+
+<br />
+
+<p align="center">
+  <a href="#features">Features</a> &nbsp;&middot;&nbsp;
+  <a href="#how-it-works">How It Works</a> &nbsp;&middot;&nbsp;
+  <a href="#tech-stack">Tech Stack</a> &nbsp;&middot;&nbsp;
+  <a href="#setup">Setup</a> &nbsp;&middot;&nbsp;
+  <a href="#usage">Usage</a>
+</p>
 
 ---
 
-## 🛠️ Tech Stack
+## Features
 
-- **Frontend**: Next.js, React, Tailwind CSS, Shadcn UI
-- **Backend**: Python, FastAPI, SQLAlchemy, Uvicorn
-- **AI / ML**: Whisper.cpp (Local Audio Transcription), Google Gemini 2.5 (LLM Extraction)
-- **Database**: PostgreSQL with `pgvector` (via Docker)
+- **Real-time Live Sessions** &mdash; Capture meeting audio directly from your browser tab with live waveform visualization and auto-stop on silence detection
+- **Audio File Upload** &mdash; Drag-and-drop audio files for batch transcription and analysis
+- **Local Transcription** &mdash; Powered by Whisper.cpp running locally for privacy and accuracy
+- **AI Intelligence** &mdash; Google Gemini extracts executive summaries, key decisions, and action items with owner assignment
+- **Session Dashboard** &mdash; Browse and manage all your past meeting sessions with status tracking
+- **Insights Report** &mdash; Beautiful, structured view of summaries, decisions, action items, and full transcripts
 
----
+## How It Works
 
-## 💻 Setup & Installation
+```
+Audio Input  -->  Whisper.cpp  -->  Transcript  -->  Gemini AI  -->  Intelligence Report
+```
+
+1. **Capture** &mdash; Record live meeting audio via browser tab capture, or upload a pre-recorded audio file
+2. **Transcribe** &mdash; Whisper.cpp processes the audio locally into an accurate text transcript
+3. **Analyze** &mdash; Google Gemini extracts structured intelligence: summaries, decisions, and action items
+4. **Store** &mdash; All data is persisted in PostgreSQL with `pgvector` for future semantic search
+5. **Present** &mdash; A polished dashboard displays the full meeting intelligence report
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | Next.js 15, React 19, Tailwind CSS 4, Shadcn UI, Zustand |
+| **Backend** | Python, FastAPI, SQLAlchemy, Uvicorn |
+| **Transcription** | Whisper.cpp (local, optimized C++ inference) |
+| **AI Analysis** | Google Gemini 2.5 via `google-genai` |
+| **Database** | PostgreSQL with `pgvector` (Docker) |
+
+## Setup
 
 ### Prerequisites
-- Node.js & npm (for the frontend)
-- Python 3.10+ (for the backend)
-- Docker & Docker Compose (for the database)
-- Make / CMake (for building Whisper.cpp)
 
-### 1. Database Setup
-Start the PostgreSQL database via Docker.
+- **Node.js** & npm (frontend)
+- **Python 3.10+** (backend)
+- **Docker & Docker Compose** (database)
+- **Make / CMake** (building Whisper.cpp)
+
+### 1. Database
+
 ```bash
 # From the root directory
 docker compose up -d
 ```
-*(This starts a Postgres instance on port 5434 with `pgvector` installed)*
 
-### 2. Backend Setup
-Set up your Python virtual environment and install dependencies.
+> Starts PostgreSQL on port `5434` with `pgvector` enabled.
+
+### 2. Backend
+
 ```bash
-# Navigate to the backend directory
 cd apps/api
 
 # Create and activate virtual environment
 python3 -m venv venv
-source venv/bin/activate  # On Windows use: venv\Scripts\activate
+source venv/bin/activate        # macOS/Linux
+# venv\Scripts\activate         # Windows
 
 # Install dependencies
 pip install -r requirements.txt
 pip install google-genai
 ```
 
-### 3. Whisper.cpp Setup
-The backend requires `whisper.cpp` to be built and a model to be downloaded.
+### 3. Whisper.cpp
+
 ```bash
 # From the root directory
 git clone https://github.com/ggerganov/whisper.cpp.git
 cd whisper.cpp
 
-# Build the whisper-cli executable
+# Build the CLI executable
 make
 
-# Download the base model (you can also use 'tiny' or 'medium')
+# Download a model (base recommended, or use tiny/medium/large)
 ./models/download-ggml-model.sh base
 ```
 
 ### 4. Environment Variables
-In the `apps/api` directory, ensure your `.env` file has your Google Gemini API key:
+
+Create `apps/api/.env`:
+
 ```env
-# apps/api/.env
 GEMINI_API_KEY=your-gemini-api-key-here
 ```
 
----
+## Usage
 
-## 🏃‍♂️ How to Run the App
+Run the backend and frontend in separate terminals:
 
-You will need to run both the backend and frontend simultaneously in separate terminal windows.
+### Backend (FastAPI)
 
-### Start the Backend (FastAPI)
 ```bash
 cd apps/api
 source venv/bin/activate
 uvicorn app.main:app --reload
 ```
-*The API will be available at `http://localhost:8000`*
 
-### Start the Frontend (Next.js)
+> API available at `http://localhost:8000`
+
+### Frontend (Next.js)
+
 ```bash
 cd apps/web
 npm install
 npm run dev
 ```
-*The web app will be available at `http://localhost:3000`*
 
----
+> App available at `http://localhost:3000`
 
-## 🧪 Usage
+### Workflow
 
-1. Open your browser and navigate to `http://localhost:3000`
-2. Click **+ New Audio Session** or **Upload Audio**.
-3. Select an audio file (e.g., a `.wav` file). *Note: Whisper.cpp works best with 16kHz WAV files.*
-4. Wait a few moments as the AI transcribes and extracts insights.
-5. Review your beautiful intelligence report featuring the summary, decisions, action items, and full transcript!
+1. Open `http://localhost:3000` in your browser
+2. Start a **Live Session** to record in real-time, or **Upload Audio** for batch processing
+3. Wait for AI transcription and analysis to complete
+4. Review your intelligence report with summary, decisions, action items, and full transcript
+
+## Project Structure
+
+```
+The-NoteTaker-AI/
+├── apps/
+│   ├── api/                  # FastAPI backend
+│   │   ├── app/
+│   │   │   ├── main.py       # Application entry point
+│   │   │   ├── models/       # SQLAlchemy models
+│   │   │   ├── routers/      # API route handlers
+│   │   │   └── services/     # Business logic
+│   │   └── requirements.txt
+│   └── web/                  # Next.js frontend
+│       └── src/
+│           ├── app/          # Pages (dashboard, upload, live, session)
+│           ├── components/   # UI components and live session widgets
+│           └── hooks/        # Custom hooks (audio, speech, silence)
+├── docker-compose.yml        # PostgreSQL + pgvector
+└── README.md
+```
+
+## Roadmap
+
+See [ROADMAP.md](./ROADMAP.md) for planned features and future direction.
