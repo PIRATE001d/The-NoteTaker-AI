@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.settings import settings
-from app.api.v1 import sessions, transcripts, notes, tasks, search
+from app.api.v1 import sessions, transcripts, notes, tasks, search, live_session
 from app.core.database import engine, Base
 from app.models.all_models import *
 from sqlalchemy import text
@@ -29,6 +29,7 @@ app.include_router(transcripts.router, prefix=settings.API_V1_STR + "/transcript
 app.include_router(notes.router, prefix=settings.API_V1_STR + "/notes", tags=["notes"])
 app.include_router(tasks.router, prefix=settings.API_V1_STR + "/tasks", tags=["tasks"])
 app.include_router(search.router, prefix=settings.API_V1_STR + "/search", tags=["search"])
+app.include_router(live_session.router, prefix=settings.API_V1_STR + "/live-session", tags=["live-session"])
 
 @app.get("/")
 def read_root():

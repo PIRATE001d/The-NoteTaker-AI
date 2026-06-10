@@ -7,3 +7,4 @@ pgvector>=0.2.5
 pydantic>=2.7.1
 pydantic-settings>=2.2.1
 python-multipart>=0.0.9
+websockets>=12.0

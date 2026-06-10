@@ -9,8 +9,8 @@ from app.services.gemini import GeminiService
 
 router = APIRouter()
 
-WHISPER_CMD = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../../whisper.cpp/build/bin/whisper-cli"))
-MODEL_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../../whisper.cpp/models/ggml-base.bin"))
+WHISPER_CMD = os.getenv("WHISPER_CMD")
+WHISPER_MODEL = os.getenv("WHISPER_MODEL")
 
 @router.post("/upload-audio")
 async def upload_audio(file: UploadFile = File(...), db: Session = Depends(get_db)):
@@ -20,7 +20,7 @@ async def upload_audio(file: UploadFile = File(...), db: Session = Depends(get_d
     
     try:
         result = subprocess.run(
-            [WHISPER_CMD, "-m", MODEL_PATH, "-f", temp_filename, "-nt"],
+            [WHISPER_CMD, "-m", WHISPER_MODEL, "-f", temp_filename, "-nt"],
             capture_output=True,
             text=True,
             check=True

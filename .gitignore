@@ -64,3 +64,8 @@ whisper.cpp/
 apps/api/venv/
 
 .cline
+
+
+*.pyc
+*.pyo
+*.pyd
